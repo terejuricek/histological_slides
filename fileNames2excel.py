@@ -26,16 +26,10 @@ def process_fileNames(colouring: str, input_file: str, output_file: str):
     print("Output file: ", output_file)
     
 def add_files(input_file: str, output_file: str):
-    # add data to an existing excel file "output_file"
-    # create new columns (and rows if there are new patients)
-    # if the patient already exists, add new data to the existing patient
-    # if the patient does not exist, add new row
-    # new colums: 
-    # Load existing Excel file
     try:
         df = pd.read_excel(output_file)
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["patient_ID", "slide_ID", "section", "slide", "scanName"])  # Create empty DF
+        df = pd.DataFrame(columns=["patient_ID", "slide_ID", "section", "slide", "scanName"])  # Empty DF
 
     new_data = []
     skipped = []
@@ -54,22 +48,31 @@ def add_files(input_file: str, output_file: str):
                     continue
                 
                 slide_ID, section, slide, colouring = parts[:4]
-                
-                # Create new row dictionary
+                patient_ID = slide_ID[2:]  # Remove 'SB' prefix (e.g., "SB236" -> "236")
+
+                # Convert all keys to string for uniform comparison
                 new_entry = {
-                    "patient_ID": slide_ID[2:],  # Remove 'SB' prefix (e.g., "SB236" -> "236")
-                    "slide_ID": slide_ID,
-                    "section": section,
-                    "slide": slide,
-                    "scanName": scan_name,
+                    "patient_ID": int(patient_ID),
+                    "slide_ID": str(slide_ID),
+                    "section": str(section),
+                    "slide": int(slide),
+                    "scanName": str(scan_name),
                     colouring: True  # Mark this staining method
                 }
-                
-                # Check if patient and section exist
-                existing_row = df[(df["slide_ID"] == slide_ID) & (df["section"] == section) & (df["slide"] == slide)]
-                
+
+                # Normalize the existing DataFrame (ensure all are strings for comparison)
+                df = df.astype(str)
+
+                # Check if the row already exists (excluding scanName)
+                existing_row = df[
+                    (df["patient_ID"] == new_entry["patient_ID"]) &
+                    (df["slide_ID"] == new_entry["slide_ID"]) &
+                    (df["section"] == new_entry["section"]) &
+                    (df["slide"] == new_entry["slide"])
+                ]
+
                 if not existing_row.empty:
-                    # Update existing row: add staining method if not present
+                    # Update existing row with new staining method
                     row_index = existing_row.index[0]
                     df.at[row_index, colouring] = True
                 else:
@@ -81,9 +84,10 @@ def add_files(input_file: str, output_file: str):
         new_df = pd.DataFrame(new_data)
         df = pd.concat([df, new_df], ignore_index=True)
 
-    # Ensure all staining method columns are present
-    for col in df.columns[5:]:  # Staining methods start from column index 5
-        df[col] = df[col].fillna(False)  # Fill missing values with False
+    # Ensure all staining method columns are present and fill NaN values with False
+    staining_cols = [col for col in df.columns if col not in ["patient_ID", "slide_ID", "section", "slide", "scanName"]]
+    for col in staining_cols:
+        df[col] = df[col].fillna(False).astype(bool)
 
     # Save updated Excel file
     df.to_excel(output_file, index=False)
@@ -91,6 +95,7 @@ def add_files(input_file: str, output_file: str):
     print(f"Updated table saved to {output_file}")
     if skipped:
         print(f"Skipped {len(skipped)} malformed entries: {skipped}")
+
                 
 
 
