@@ -94,12 +94,14 @@ def compareCSV(input_csv1, input_csv2, output_txt=None):
     # Find rows that are in df1 but not in df2
     diff1 = df1_aligned[~df1_aligned.index.isin(df2_aligned.index)].copy()
     diff1 = diff1.reset_index()[common_columns]
-    diff1['status'] = 'Only in first file'
+    # diff1['status'] = 'Only in first file'
+    diff1['status'] = f"Only in {input_csv1}"
     
     # Find rows that are in df2 but not in df1
     diff2 = df2_aligned[~df2_aligned.index.isin(df1_aligned.index)].copy()
     diff2 = diff2.reset_index()[common_columns]
-    diff2['status'] = 'Only in second file'
+    # diff2['status'] = 'Only in second file'
+    diff2['status'] = f"Only in {input_csv2}"
     
     # Combine the differences
     differences = pd.concat([diff1, diff2])
