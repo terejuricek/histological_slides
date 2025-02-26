@@ -22,6 +22,12 @@ Ensure you have the required Python version (>= 3.6) and install the necessary l
   ```
   pip install pandas
   ```
+  ```
+  pip install argparse
+  ```
+  ```
+  pip install os
+  ```
 ## Usage
 
 Command-Line Interface (CLI)
