@@ -46,7 +46,11 @@ The script provides several commands to process histological slide data.
     ```
     python histological_slide_processor.py csv2excel <input_csv> <output_excel>
     ```
-- compareCSV: Compare two CSV files and output the differences.
+- ~~compareCSV: Compare two CSV files and output the differences.~~ -> to be changed to **compareCSVpatient**
   ```
-  python histological_slide_processor.py compareCSV <input_csv1> <input_csv2> [-t <output_txt>]
+  python histological_slide_processor.py compareCSVpatient <input_csv1> <input_csv2> [-t <output_txt>]
+  ```
+- compareCSVstains: Compare two CSV files and output the differences.
+  ```
+  python histological_slide_processor.py compareCSVstains <input_csv1> <input_csv2> [-t <output_txt>]
   ```  
