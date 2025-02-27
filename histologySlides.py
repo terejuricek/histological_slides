@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-import sys
 import argparse
 
 def parse_filename(filename):
@@ -78,7 +77,6 @@ def compareCSV(input_csv1, input_csv2, output_txt=None):
     df1 = pd.read_csv(input_csv1)
     df2 = pd.read_csv(input_csv2)
     
-    # Clean the data: strip whitespace and convert to appropriate types
     df1 = df1.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     df2 = df2.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     df1['patient_ID'] = pd.to_numeric(df1['patient_ID'])
@@ -86,24 +84,19 @@ def compareCSV(input_csv1, input_csv2, output_txt=None):
     df2['patient_ID'] = pd.to_numeric(df2['patient_ID'])
     df2['slide'] = pd.to_numeric(df2['slide'])
     
-    # Align the DataFrames based on the first four columns
+    # align the DataFrames based on the first three columns
     common_columns = ["patient_ID", "slide_ID", "slide"]
     df1_aligned = df1.set_index(common_columns)
     df2_aligned = df2.set_index(common_columns)
     
-    # Find rows that are in df1 but not in df2
     diff1 = df1_aligned[~df1_aligned.index.isin(df2_aligned.index)].copy()
     diff1 = diff1.reset_index()[common_columns]
-    # diff1['status'] = 'Only in first file'
     diff1['status'] = f"Only in {input_csv1}"
     
-    # Find rows that are in df2 but not in df1
     diff2 = df2_aligned[~df2_aligned.index.isin(df1_aligned.index)].copy()
     diff2 = diff2.reset_index()[common_columns]
-    # diff2['status'] = 'Only in second file'
     diff2['status'] = f"Only in {input_csv2}"
     
-    # Combine the differences
     differences = pd.concat([diff1, diff2])
     
     result = f"Differences:\n{differences.to_string(index=False)}"
@@ -114,6 +107,59 @@ def compareCSV(input_csv1, input_csv2, output_txt=None):
         print(f"Differences saved to {output_txt}")
     else:
         print(result)
+
+
+def compareCSVstains(original_csv, stored_csv, output_txt):
+    """Finds missing staining scans and saves them to a text file."""
+    
+    df_original = pd.read_csv("original_table.csv", usecols=['patient_ID', 'slide_ID', 'slide', 'HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO'])
+    df_stored = pd.read_csv(stored_csv)
+    
+    stain_columns = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+    print(f"Stain columns: {stain_columns}")
+    
+    for stain in stain_columns:
+        if stain not in df_stored.columns:
+            df_stored[stain] = False
+
+    missing_stains = []
+    
+    def is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+    
+    # iterate through original_table
+    for _, row in df_original.iterrows():
+        patient_id, slide_id, slide = row['patient_ID'], row['slide_ID'], row['slide']
+        
+        for stain in stain_columns:
+            print(f"Checking {patient_id}, {slide_id}, {slide}, {stain}")
+            print(f"{row[stain]} is {pd.notna(row[stain])} and {is_number(row[stain])}")
+            if pd.notna(row[stain]) and is_number(row[stain]):
+                if int(row[stain]) > 0:
+
+                    mask = (
+                        (df_stored['patient_ID'] == patient_id) &
+                        (df_stored['slide_ID'] == slide_id) &
+                        (df_stored['slide'] == slide) &
+                        (df_stored[stain] == True)  
+                    )
+                    
+                    if not mask.any():  
+                        missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}\n")
+    
+    with open(output_txt, 'w') as file:
+        file.write("Patient_ID,Slide_ID,Slide,Missing_Stain\n")
+        file.writelines(missing_stains)
+    
+    print(f"Missing stains saved to {output_txt}")
+    
+
+    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some files.")
@@ -131,7 +177,7 @@ if __name__ == "__main__":
     parser_csv2excel.add_argument('input_csv', help='Input CSV file')
     parser_csv2excel.add_argument('output_excel', help='Output Excel file')
     
-    parser_excel2csv = subparsers.add_parser('excel2csv', help='Convert a Excel file to an CSV file')
+    parser_excel2csv = subparsers.add_parser('excel2csv', help='Convert an Excel file to a CSV file')
     parser_excel2csv.add_argument('input_excel', help='Input Excel file')
     parser_excel2csv.add_argument('output_csv', help='Output CSV file')
 
@@ -139,6 +185,12 @@ if __name__ == "__main__":
     parser_compareCSV.add_argument('input_csv1', help='First input CSV file')
     parser_compareCSV.add_argument('input_csv2', help='Second input CSV file')
     parser_compareCSV.add_argument('-t', '--txt', help='Output TXT file to store differences')
+
+    parser_compareCSVstains = subparsers.add_parser('compareCSVstains', help="Compare two CSV files based on stains and store the differences")
+    parser_compareCSVstains.add_argument('original_csv', help="Path to the original CSV file")
+    parser_compareCSVstains.add_argument('stored_csv', help="Path to the stored scans CSV file")
+    parser_compareCSVstains.add_argument('output_txt', help="Output file for missing stains")
+
 
     args = parser.parse_args()
 
@@ -152,5 +204,7 @@ if __name__ == "__main__":
         excel2csv(args.input_excel, args.output_csv)
     elif args.command == 'compareCSV':
         compareCSV(args.input_csv1, args.input_csv2, args.txt)
+    elif args.command == 'compareCSVstains':
+        compareCSVstains(args.original_csv, args.stored_csv, args.output_txt)
     else:
         print("Invalid command or arguments.")
