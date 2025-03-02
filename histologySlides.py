@@ -28,6 +28,49 @@ def order(output, column):
     else:
         print("CSV file does not exist.")
 
+def known_stain(stain):
+    known_stains = stain_columns = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+    for name in known_stains:
+        if stain == name: 
+            expected = True
+            break
+        else:
+            expected = False
+    return expected
+
+# check scan_logs.txt files for compatible structure:
+def stain_check(stain):
+    expected = known_stain(stain)    
+    double_stain = False
+    
+    if not expected:
+        if "_" in stain:
+            stain1, stain2 = stain.split("_")
+            double_stain = True
+
+    if expected:
+        stain_list = [stain]
+    elif double_stain:
+        stain_list = [stain1, stain2]
+    else:
+        stain_list = [pd.NA]
+
+    return stain_list
+
+def add_row(df, patient_ID, slide_ID, section, slide, stain):
+    mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+    if not mask.any():
+        new_entry = pd.DataFrame({
+            "patient_ID": [patient_ID],
+            "slide_ID": [slide_ID],
+            "section": [section],
+            "slide": [slide],
+            stain: [True]
+        })
+        df = pd.concat([df, new_entry], ignore_index=True)
+    else:
+        df.loc[mask, stain] = True
+
 def files2csv(input_txt, output_csv):
     """creates / updates a CSV file by adding data from the txt file."""
     if os.path.exists(output_csv):
@@ -40,22 +83,42 @@ def files2csv(input_txt, output_csv):
             line = line.strip()
             if line:
                 patient_ID, slide_ID, section, slide, stain = parse_filename(line)
-
-            if stain not in df.columns:
-                df[stain] = pd.NA
             
-            mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
-            if not mask.any():
-                new_entry = pd.DataFrame({
-                    "patient_ID": [patient_ID],
-                    "slide_ID": [slide_ID],
-                    "section": [section],
-                    "slide": [slide],
-                    stain: [True]
-                })
-                df = pd.concat([df, new_entry], ignore_index=True)
+            if stain_check(stain) == pd.NA:
+                print(f"Unrecognized staining method: {stain}")
+            elif len(stain_check(stain)) == 1:
+                if stain not in df.columns:
+                    df[stain] = pd.NA
+                    print(f"Unrecognized stainingmethod: {stain}")
+                else:
+                    add_row(df, patient_ID, slide_ID, section, slide, stain)
             else:
-                df.loc[mask, stain] = True
+                stain1, stain2 = stain_check(stain)
+                if stain1 not in df.columns:
+                    df[stain2] = pd.NA
+                    print(f"Unrecognized staining method: {stain1}")
+                else:
+                    add_row(df, patient_ID, slide_ID, section, slide, stain1)
+                
+                if stain2 not in df.columns:
+                    df[stain2] = pd.NA
+                    print(f"Unrecognized staining method: {stain2}")
+                else:
+                    add_row(df, patient_ID, slide_ID, section, slide, stain2)
+            
+            
+            # mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+            # if not mask.any():
+            #     new_entry = pd.DataFrame({
+            #         "patient_ID": [patient_ID],
+            #         "slide_ID": [slide_ID],
+            #         "section": [section],
+            #         "slide": [slide],
+            #         stain: [True]
+            #     })
+            #     df = pd.concat([df, new_entry], ignore_index=True)
+            # else:
+            #     df.loc[mask, stain] = True
     
     df.to_csv(output_csv, index=False)
     print(f"updated CSV saved to {output_csv}")

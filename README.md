@@ -56,13 +56,18 @@ The script provides several commands to process histological slide data.
   ```
   python histological_slide_processor.py compareCSVpatient <input_csv1> <input_csv2> [-t <output_txt>]
   ```
-- compareCSVstains: Compare two CSV files and output the differences.
+- compareCSVstains: Compare two CSV files and output the differences in a txt file.
   ```
-  python histological_slide_processor.py compareCSVstains <input_csv1> <input_csv2> [-t <output_txt>]
+  python histological_slide_processor.py compareCSVstains <input_csv1> <input_csv2> <output_txt>
   ```  
 
-# Original table structure:
-Patient ID | Slides ID | Slides | HE | scan HE | CD3 | scan CD3 | CD8 | scan CD8 | FoxP3 | scan FoxP3 | PD1 | scan PD1 | PD-L1 | scan PD-L1 | CAIX | scan CAIX | CD68 | scan CD68 | CD45RO | scan CD45RO
+# Expected Original_table structure:
+<span style="color: blue;">Patient ID</span> | <span style="color: blue;">Slides ID</span> | <span style="color: blue;">Slides</span> | HE | <span style="color: grey;">scan HE</span> | CD3 | scan CD3 | CD8 | scan CD8 | FoxP3 | scan FoxP3 | PD1 | scan PD1 | PD-L1 | scan PD-L1 | CAIX | scan CAIX | CD68 | scan CD68 | CD45RO | scan CD45RO
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
 1 | SB-01 | 1 | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 1 | yes | 1 | yes | 1 | yes | m | yes | 1 | yes
 1 | SB-01 | 3 | 1 | yes | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 2 | yes | 0 | no | 1 | yes | 1 | yes
+
+- position of columns isnt important
+- <span style="color: blue;">Blue column names</span> are nessecery in this exact phrasing
+- White columns are nessecery
+-  <span style="color: grey;">Grey column names</span> are impartioal to the otput
