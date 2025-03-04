@@ -62,12 +62,48 @@ The script provides several commands to process histological slide data.
   ```  
 
 # Expected Original_table structure:
-<span style="color: blue;">Patient ID</span> | <span style="color: blue;">Slides ID</span> | <span style="color: blue;">Slides</span> | HE | <span style="color: grey;">scan HE</span> | CD3 | scan CD3 | CD8 | scan CD8 | FoxP3 | scan FoxP3 | PD1 | scan PD1 | PD-L1 | scan PD-L1 | CAIX | scan CAIX | CD68 | scan CD68 | CD45RO | scan CD45RO
+<span style="color: blue;">Patient ID</span> | <span style="color: blue;">Slides ID</span> | <span style="color: blue;">Slides</span> | <span style="color: pink;">HE</span> | <span style="color: grey;">scan HE</span> | <span style="color: pink;">CD3</span> | <span style="color: grey;">scan CD3</span> | <span style="color: pink;">CD8</span> | <span style="color: grey;">scan CD8</span> | <span style="color: pink;">FoxP3</span> | <span style="color: grey;">scan FoxP3</span> | <span style="color: pink;">PD1</span> | <span style="color: grey;">scan PD1</span> | <span style="color: pink;">PD-L1</span> | <span style="color: grey;">scan PD-L1</span> | <span style="color: pink;">CAIX</span> | <span style="color: grey;">scan CAIX</span> | <span style="color: pink;">CD68</span> | <span style="color: grey;">scan CD68</span> | <span style="color: pink;">CD45R</span> | <span style="color: grey;">scan CD45RO</span>
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
 1 | SB-01 | 1 | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 1 | yes | 1 | yes | 1 | yes | m | yes | 1 | yes
 1 | SB-01 | 3 | 1 | yes | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 2 | yes | 0 | no | 1 | yes | 1 | yes
+...
 
 - position of columns isnt important
 - <span style="color: blue;">Blue column names</span> are nessecery in this exact phrasing
-- White columns are nessecery
--  <span style="color: grey;">Grey column names</span> are impartioal to the otput
+- <span style="color: pink;">Pink columns</span> are nessecery
+-  <span style="color: grey;">Grey column names</span> are impartial to the otput
+
+currently recognized staining methods: 
+```
+['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+```
+<span style="color: red;">to be changed:
+addition of a function that adaptively gathers the wanted staining methods</span>
+
+# Detailed eploration of each in-line command 
+- order
+- files2csv
+- csv2excel
+- excel2csv
+- compareCSV
+- compareCSVstains
+
+## Order
+```
+order(output, column1, column2=None)
+```
+orders **any .csv file** by user-inputed column (with the option of selecting another column to order the table by if values are reoccuring) </br>
+Arguments:
+- file name
+- column1
+- column2
+
+## files2csv
+```
+files2csv(input_txt, output_csv)
+```
+takes in a any .txt file containing scan file names **any .csv file** by user-inputed column (with the option of selecting another column to order the table by if values are reoccuring) </br>
+Arguments:
+- .txt file
+- output 
+- column2

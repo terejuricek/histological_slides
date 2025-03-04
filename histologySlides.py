@@ -15,24 +15,24 @@ def parse_filename(filename):
         slide_ID = f"{parts[0][0:2]}-{parts[0][2:]}"
     return patient_ID, slide_ID, section, slide, stain
 
-def order(output, column, column2=None):
+def order(output, column1, column2=None):
     """Sorts the CSV file by the specified column and saves it."""
     if os.path.exists(output):
         df = pd.read_csv(output)
-        if column in df.columns:
+        if column1 in df.columns:
             if column2:
                 if column2 in df.columns:
-                    df = df.sort_values(by=[column, column2])
-                    print(f"CSV file sorted by {column} and {column2} and saved.")
+                    df = df.sort_values(by=[column1, column2])
+                    print(f"CSV file sorted by {column1} and {column2} and saved.")
                 else:
                     print(f"Column '{column2}' not found in the CSV file. Sorting by {column} only.")
-                    df = df.sort_values(by=column)
+                    df = df.sort_values(by=column1)
             else:
-                df = df.sort_values(by=column)
-                print(f"CSV file sorted by {column} and saved.")
+                df = df.sort_values(by=column1)
+                print(f"CSV file sorted by {column1} and saved.")
             df.to_csv(output, index=False)
         else:
-            print(f"Column '{column}' not found in the CSV file.")
+            print(f"Column '{column1}' not found in the CSV file.")
     else:
         print("CSV file does not exist.")
         
@@ -221,10 +221,10 @@ def compareCSVstains(original_csv, stored_csv, output_txt, missing=False):
     
     # CHANGE!!!!! = FoxP3 = FOXP3 PD-L1 = PDL1 in original_table.csv !!!!!!!!!!!!!!!!!!!
     
-    df_original = pd.read_csv("original_table.csv", usecols=['patient_ID', 'slide_ID', 'slide', 'HE', 'CD3', 'CD8', 'FOXP3', 'PD1', 'PDL1', 'CAIX', 'CD68', 'CD45RO'])
+    df_original = pd.read_csv("original_table.csv", usecols=['patient_ID', 'slide_ID', 'slide', 'HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO'])
     df_stored = pd.read_csv(stored_csv)
     
-    stain_columns = ['HE', 'CD3', 'CD8', 'FOXP3', 'PD1', 'PDL1', 'CAIX', 'CD68', 'CD45RO']
+    stain_columns = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
     print(f"Stain columns: {stain_columns}")
     
     for stain in stain_columns:
@@ -249,7 +249,10 @@ def compareCSVstains(original_csv, stored_csv, output_txt, missing=False):
             print(f"{row[stain]} is {pd.notna(row[stain])} and {is_number(row[stain])}")
             if pd.notna(row[stain]) and is_number(row[stain]):
                 if int(row[stain]) > 0:
-
+                    if stain == "FoxP3":
+                        stain = "FOXP3"
+                    elif stain == "PD-L1":
+                        stain = "PDL1"
                     mask = (
                         (df_stored['patient_ID'] == patient_id) &
                         (df_stored['slide_ID'] == slide_id) &
@@ -286,7 +289,7 @@ if __name__ == "__main__":
 
     parser_order = subparsers.add_parser('order', help='Sort the CSV file by the specified column')
     parser_order.add_argument('output', help='Output CSV file')
-    parser_order.add_argument('column', help='Column to sort by')
+    parser_order.add_argument('column1', help='Column to sort by')
     parser_order.add_argument('column2', nargs='?', help='Second column to sort by')
 
     parser_files2csv = subparsers.add_parser('files2csv', help='Create/update a CSV file by adding data from the txt file')
@@ -316,7 +319,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == 'order':
-        order(args.output, args.column, args.column2)
+        order(args.output, args.column1, args.column2)
     elif args.command == 'files2csv':
         files2csv(args.input_txt, args.output_csv)
     elif args.command == 'csv2excel':
