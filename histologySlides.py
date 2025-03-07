@@ -2,18 +2,6 @@ import pandas as pd
 import os
 import argparse
 
-def parse_filename(filename):
-    """extracts patient_ID, slide_ID, section, slide, and stain method from the filename"""
-    parts = filename.replace('.mrxs', '').split('-')
-    patient_ID = int(parts[0][2:])
-    section = parts[1]
-    slide = int(parts[2])
-    stain = parts[3]
-    if parts[0][2] == '0':
-        slide_ID = f"{parts[0][0:2]}-{parts[0][3:]}"
-    else:
-        slide_ID = f"{parts[0][0:2]}-{parts[0][2:]}"
-    return patient_ID, slide_ID, section, slide, stain
 
 def order(output, column1, column2=None):
     """Sorts the CSV file by the specified column and saves it."""
@@ -64,6 +52,19 @@ def stain_check(stain):
         stain_list = [pd.NA]
 
     return stain_list
+
+def parse_filename(filename):
+    """extracts patient_ID, slide_ID, section, slide, and stain method from the filename"""
+    parts = filename.replace('.mrxs', '').split('-')
+    patient_ID = int(parts[0][2:])
+    section = parts[1]
+    slide = int(parts[2])
+    stain = parts[3]
+    if parts[0][2] == '0':
+        slide_ID = f"{parts[0][0:2]}-{parts[0][3:]}"
+    else:
+        slide_ID = f"{parts[0][0:2]}-{parts[0][2:]}"
+    return patient_ID, slide_ID, section, slide, stain
 
 def add_row(df, patient_ID, slide_ID, section, slide, stain):
     mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
