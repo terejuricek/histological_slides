@@ -182,4 +182,22 @@ Slides ID | slide_ID | SLIDE_ID | .columns.str.strip().str.upper() </br> .rename
 PD-L1 | PDL1 | PDL1 | .columns.str.strip().str.upper() </br> .rename(columns={"PD-L1": "PDL1"})
 FoxP3 | FOXP3 | FOXP3 | .columns.str.strip().str.upper() </br>
 
-- change in script means there is no permanent change to the inp
+- change in script means there is no permanent change to the inputed tables
+
+list of currently recognized stains:
+```
+['HE', 'CD3', 'CD8', 'FOXP3', 'PD1', 'PDL1', 'CAIX', 'CD68', 'CD45RO']
+```
+
+```
+compareStains(original_csv, stored_csv, output_txt, missing=False, verbose=False)
+```
+Arguments:
+- <span style="color: royalblue;">original_csv</span> -> file name of the first table
+- <span style="color: royalblue;">stored_csv</span> -> file name of the second table
+- <span style="color: royalblue;">output_txt</span> -> (optional) text file used to store the output (missing stain scans), if not present as an argument, the missing scans are printed in the terminal
+
+
+
+
+<span style="color: lightcoral;"></span>
