@@ -25,14 +25,11 @@ def order(output, column1, column2=None):
         print("CSV file does not exist.")
         
 def known_stain(stain):
-    known_stains = stain_columns = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+    known_stains = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
     for name in known_stains:
-        if stain == name: 
-            expected = True
-            break
-        else:
-            expected = False
-    return expected
+        if stain == name:
+            return True
+    return False
 
 # check scan_logs.txt files for compatible structure:
 def stain_check(stain):
@@ -152,18 +149,7 @@ def files2csv(input_txt, output_csv):
                     # add_row(df, patient_ID, slide_ID, section, slide, stain2)
             
             
-            # mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
-            # if not mask.any():
-            #     new_entry = pd.DataFrame({
-            #         "patient_ID": [patient_ID],
-            #         "slide_ID": [slide_ID],
-            #         "section": [section],
-            #         "slide": [slide],
-            #         stain: [True]
-            #     })
-            #     df = pd.concat([df, new_entry], ignore_index=True)
-            # else:
-            #     df.loc[mask, stain] = True
+
     
     df.to_csv(output_csv, index=False)
     print(f"updated CSV saved to {output_csv}")

@@ -90,7 +90,7 @@ addition of a function that adaptively gathers the wanted staining methods</span
 
 ## Order
 orders **any .csv file** by user-inputed column (with the option of selecting another column to order the table by if values are reoccuring) </br>
-```
+```python
 order(output, column1, column2=None)
 ```
 Arguments:
@@ -108,7 +108,7 @@ patient_ID	| slide_ID	| section	| slide | >stain<
 1 | SB-01 | NRM | 0 | True </br>
 
 
-```
+```python
 files2csv(input_txt, output_csv)
 ```
 Arguments:
@@ -128,7 +128,7 @@ corespondig functions:
 
 ## csv2excel and excel2csv
 selfexplanatory - convertion between table formats </br>
-```
+```python
 csv2excel(input_csv, output_excel)
 excel2csv(input_excel, output_csv)
 ```
