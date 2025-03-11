@@ -203,4 +203,18 @@ compareStains(original_csv, stored_csv, output_txt, missing=False, verbose=False
 Arguments:
 - <span style="color: royalblue;">original_csv</span> -> file name of the first table
 - <span style="color: royalblue;">stored_csv</span> -> file name of the second table
-- <span style="color: royalblue;">output_txt</span> -> (optional) text file used to store the output (missing stain scans), if not present as an argument, the missing scans are printed in the te
+- <span style="color: royalblue;">output_txt</span> -> (optional) text file used to store the output (missing stain scans), if not present as an argument, the missing scans are printed in the terminal
+
+Meachanizmus porovnávania farbív
+```python
+
+mask = (
+    (df_stored['PATIENT_ID'] == patient_id) &
+    (df_stored['SLIDE_ID'] == slide_id) &
+    (df_stored['SLIDE'] == slide) &
+    (df_stored[stain] == True)  
+)               
+```
+
+
+<span style="color: lightcoral;"></span>
