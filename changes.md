@@ -1,4 +1,4 @@
-Original table
+# Original table
 - name: 'slidy histo.xlsx'
 - header: 'Patient ID'	'Slides ID'	'Slides'	'HE'	'scan HE'	'CD3'	''	'CD8'	''	'FoxP3'	''	'PD1'	''	'PD-L1'	''	'CAIX'	''	'CD68'	''	'CD45RO'	''
 
@@ -15,5 +15,3 @@ def compareCSVstains
     elif stain == "PD-L1":
         stain = "PDL1"
 ...
-
-

@@ -206,10 +206,7 @@ def files2csv(input_txt, output_csv):
                     else:
                         df.loc[mask, stain2] = True  
                     # add_row(df, patient_ID, slide_ID, section, slide, stain2)
-            
-            
 
-            
             if stain_check(stain) == pd.NA:
                 print(f"Unrecognized staining method: {stain}")
             elif len(stain_check(stain)) == 1:
@@ -266,11 +263,7 @@ def files2csv(input_txt, output_csv):
                         df = pd.concat([df, new_entry], ignore_index=True)
                     else:
                         df.loc[mask, stain2] = True  
-                    # add_row(df, patient_ID, slide_ID, section, slide, stain2)
-            
-            
-
-    
+                    # add_row(df, patient_ID, slide_ID, section, slide, stain2)                        
     df.to_csv(output_csv, index=False)
     print(f"updated CSV saved to {output_csv}")
 
@@ -354,164 +347,4 @@ def compareStains(original_csv, stored_csv, output_txt=None, missing=False, verb
     df_original.rename(columns={"SLIDES": "SLIDE"}, inplace=True)
     
     stain_columns = ['HE', 'CD3', 'CD8', 'FOXP3', 'PD1', 'PDL1', 'CAIX', 'CD68', 'CD45RO']
-    print(f"Stain columns: {stain_columns}")
-    
-    for stain in stain_columns:
-        if stain not in df_stored.columns:
-            df_stored[stain] = False
-
-    missing_stains = []
-    
-    def is_number(s):
-        try:
-            float(s)
-            return True
-        except ValueError:
-            return False
-    
-    # iterate through original_table
-    for _, row in df_original.iterrows():
-        # patient_id, slide_id, slide = row['patient_ID'], row['slide_ID'].strip(), row['slide']
-        patient_id, slide_id, slide = row['PATIENT_ID'], row['SLIDE_ID'].strip(), row['SLIDE']
-        # patient_id, slide_id, slide = row['patient_ID'], row['slide_ID'].strip(), row['slide']
-        patient_id, slide_id, slide = row['PATIENT_ID'], row['SLIDE_ID'].strip(), row['SLIDE']
-        
-        for stain in stain_columns:
-            if verbose:
-                print(f"Checking {patient_id}, {slide_id}, {slide}, {stain} -> {row[stain]} is {'not NA' if pd.notna(row[stain]) else 'NA'} and is {'a number' if is_number(row[stain]) else 'not a number'}")
-            if verbose:
-                print(f"Checking {patient_id}, {slide_id}, {slide}, {stain} -> {row[stain]} is {'not NA' if pd.notna(row[stain]) else 'NA'} and is {'a number' if is_number(row[stain]) else 'not a number'}")
-            if pd.notna(row[stain]) and is_number(row[stain]):
-                if int(row[stain]) > 0:
-                    mask = (
-                        (df_stored['PATIENT_ID'] == patient_id) &
-                        (df_stored['SLIDE_ID'] == slide_id) &
-                        (df_stored['SLIDE'] == slide) &
-                        (df_stored['PATIENT_ID'] == patient_id) &
-                        (df_stored['SLIDE_ID'] == slide_id) &
-                        (df_stored['SLIDE'] == slide) &
-                        (df_stored[stain] == True)  
-                    )
-                    
-                    if not mask.any():  
-                        missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}\n")
-            if missing and pd.notna(row[stain]) and row[stain] == "m":
-                mask = (
-                    (df_stored['PATIENT_ID'] == patient_id) &
-                    (df_stored['SLIDE_ID'] == slide_id) &
-                    (df_stored['SLIDE'] == slide) &
-                    (df_stored[stain] == True)  
-                )
-                if not mask.any():  
-                    missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}-missing slide\n")
-    
-    # with open(output_txt, 'w') as file:
-    #     file.write("Patient_ID,Slide_ID,Slide,Missing_Stain\n")
-    #     file.writelines(missing_stains)
-            if missing and pd.notna(row[stain]) and row[stain] == "m":
-                mask = (
-                    (df_stored['PATIENT_ID'] == patient_id) &
-                    (df_stored['SLIDE_ID'] == slide_id) &
-                    (df_stored['SLIDE'] == slide) &
-                    (df_stored[stain] == True)  
-                )
-                if not mask.any():  
-                    missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}-missing slide\n")
-    
-    # with open(output_txt, 'w') as file:
-    #     file.write("Patient_ID,Slide_ID,Slide,Missing_Stain\n")
-    #     file.writelines(missing_stains)
-    
-    # print(f"Missing stains saved to {output_txt}")
-    
-    if output_txt:
-        with open(output_txt, 'w') as file:
-            file.writelines(missing_stains)
-            print(f"Differences saved to {output_txt}")
-    else:
-        for line in missing_stains:
-            line = line.strip()
-            print(line)
-
-    # print(f"Missing stains saved to {output_txt}")
-    
-    if output_txt:
-        with open(output_txt, 'w') as file:
-            file.writelines(missing_stains)
-            print(f"Differences saved to {output_txt}")
-    else:
-        for line in missing_stains:
-            line = line.strip()
-            print(line)
-
-
-    
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process some files.")
-    subparsers = parser.add_subparsers(dest='command')
-
-    parser_order = subparsers.add_parser('order', help='Sort the CSV file by the specified column')
-    parser_order.add_argument('output', help='Output CSV file')
-    parser_order.add_argument('column1', help='Column to sort by')
-    parser_order.add_argument('column2', nargs='?', help='Second column to sort by')
-    parser_order.add_argument('column1', help='Column to sort by')
-    parser_order.add_argument('column2', nargs='?', help='Second column to sort by')
-
-    parser_files2csv = subparsers.add_parser('files2csv', help='Create/update a CSV file by adding data from the txt file')
-    parser_files2csv.add_argument('input_txt', help='Input TXT file')
-    parser_files2csv.add_argument('output_csv', help='Output CSV file')
-
-    parser_csv2excel = subparsers.add_parser('csv2excel', help='Convert a CSV file to an Excel file')
-    parser_csv2excel.add_argument('input_csv', help='Input CSV file')
-    parser_csv2excel.add_argument('output_excel', help='Output Excel file')
-    
-    parser_excel2csv = subparsers.add_parser('excel2csv', help='Convert an Excel file to a CSV file')
-    parser_excel2csv.add_argument('input_excel', help='Input Excel file')
-    parser_excel2csv.add_argument('output_csv', help='Output CSV file')
-
-    parser_compareTables = subparsers.add_parser('compareTables', help='Compare two CSV files and print/store the differences')
-    parser_compareTables.add_argument('input_csv1', help='First input CSV file')
-    parser_compareTables.add_argument('input_csv2', help='Second input CSV file')
-    parser_compareTables.add_argument('-t', '--txt', help='Output TXT file to store differences')
-    parser_compareTables = subparsers.add_parser('compareTables', help='Compare two CSV files and print/store the differences')
-    parser_compareTables.add_argument('input_csv1', help='First input CSV file')
-    parser_compareTables.add_argument('input_csv2', help='Second input CSV file')
-    parser_compareTables.add_argument('-t', '--txt', help='Output TXT file to store differences')
-
-    parser_compareStains = subparsers.add_parser('compareStains', help="Compare two CSV files based on stains and store the differences")
-    parser_compareStains.add_argument('original_csv', help="Path to the original CSV file")
-    parser_compareStains.add_argument('stored_csv', help="Path to the stored scans CSV file")
-    parser_compareStains.add_argument('output_txt', nargs='?', help="Output file for missing stains")
-    parser_compareStains.add_argument('-m', '--missing', action='store_true', help="Check for missing slides")
-    parser_compareStains.add_argument('-v', '--verbose', action='store_true', help="Print verbose output")
-    parser_compareStains = subparsers.add_parser('compareStains', help="Compare two CSV files based on stains and store the differences")
-    parser_compareStains.add_argument('original_csv', help="Path to the original CSV file")
-    parser_compareStains.add_argument('stored_csv', help="Path to the stored scans CSV file")
-    parser_compareStains.add_argument('output_txt', nargs='?', help="Output file for missing stains")
-    parser_compareStains.add_argument('-m', '--missing', action='store_true', help="Check for missing slides")
-    parser_compareStains.add_argument('-v', '--verbose', action='store_true', help="Print verbose output")
-
-
-    args = parser.parse_args()
-
-    if args.command == 'order':
-        order(args.output, args.column1, args.column2)
-        order(args.output, args.column1, args.column2)
-    elif args.command == 'files2csv':
-        files2csv(args.input_txt, args.output_csv)
-    elif args.command == 'csv2excel':
-        csv2excel(args.input_csv, args.output_excel)
-    elif args.command == 'excel2csv':
-        excel2csv(args.input_excel, args.output_csv)
-    elif args.command == 'compareTables':
-        compareTables(args.input_csv1, args.input_csv2, args.txt)
-    elif args.command == 'compareStains':
-        compareStains(args.original_csv, args.stored_csv, args.output_txt, args.missing, args.verbose)
-    elif args.command == 'compareTables':
-        compareTables(args.input_csv1, args.input_csv2, args.txt)
-    elif args.command == 'compareStains':
-        compareStains(args.original_csv, args.stored_csv, args.output_txt, args.missing, args.verbose)
-    else:
-        print("Invalid command or arguments.")
+    print(f"Stain
