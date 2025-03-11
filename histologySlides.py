@@ -2,6 +2,57 @@ import pandas as pd
 import os
 import argparse
 
+<<<<<<< Updated upstream
+=======
+
+def order(output, column1, column2=None):
+    """Sorts the CSV file by the specified column and saves it."""
+    if os.path.exists(output):
+        df = pd.read_csv(output)
+        if column1 in df.columns:
+            if column2:
+                if column2 in df.columns:
+                    df = df.sort_values(by=[column1, column2])
+                    print(f"CSV file sorted by {column1} and {column2} and saved.")
+                else:
+                    print(f"Column {column2} not found in the CSV file. Sorting by {column1} only.")
+                    df = df.sort_values(by=column1)
+            else:
+                df = df.sort_values(by=column1)
+                print(f"CSV file sorted by {column1} and saved.")
+            df.to_csv(output, index=False)
+        else:
+            print(f"Column '{column1}' not found in the CSV file.")
+    else:
+        print("CSV file does not exist.")
+
+def known_stain(stain):
+    known_stains = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+    for name in known_stains:
+        if stain == name:
+            return True
+    return False
+
+# check scan_logs.txt files for compatible structure:
+def stain_check(stain):
+    expected = known_stain(stain)    
+    double_stain = False
+    
+    if not expected:
+        if "_" in stain:
+            stain1, stain2 = stain.split("_")
+            double_stain = True
+
+    if expected:
+        stain_list = [stain]
+    elif double_stain:
+        stain_list = [stain1, stain2]
+    else:
+        stain_list = [pd.NA]
+
+    return stain_list
+
+>>>>>>> Stashed changes
 def parse_filename(filename):
     """extracts patient_ID, slide_ID, section, slide, and stain method from the filename"""
     parts = filename.replace('.mrxs', '').split('-')
