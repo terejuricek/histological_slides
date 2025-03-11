@@ -16,6 +16,7 @@ This Python script handles tables with information about histological slides and
   - **csv2excel()** converts a CSV file to an Excel file.
   - **excel2csv()** converts an Excel file back to a CSV file.
 - **CSV Comparison**: The compareTables() function compares two CSV files and outputs the differences based on common columns (patient_ID, slide_ID, slide).
+- **CSV Comparison**: The compareTables() function compares two CSV files and outputs the differences based on common columns (patient_ID, slide_ID, slide).
 
 ## Instalation
 Ensure you have the required Python version (>= 3.6) and install the necessary libraries:
@@ -53,14 +54,20 @@ The script provides several commands to process histological slide data.
     python histological_slide_processor.py csv2excel <input_csv> <output_excel>
     ```
 - ~~compareTables: Compare two CSV files and output the differences.~~ -> to be changed to **compareTablespatient**
+- ~~compareTables: Compare two CSV files and output the differences.~~ -> to be changed to **compareTablespatient**
   ```
+  python histological_slide_processor.py compareTablespatient <input_csv1> <input_csv2> [-t <output_txt>]
   python histological_slide_processor.py compareTablespatient <input_csv1> <input_csv2> [-t <output_txt>]
   ```
 - compareStains: Compare two CSV files and output the differences in a txt file.
+- compareStains: Compare two CSV files and output the differences in a txt file.
   ```
+  python histological_slide_processor.py compareStains <input_csv1> <input_csv2> <output_txt>
   python histological_slide_processor.py compareStains <input_csv1> <input_csv2> <output_txt>
   ```  
 
+# Expected Original_table structure:
+<span style="color: royalblue;">Patient ID</span> | <span style="color: royalblue;">Slides ID</span> | <span style="color: royalblue;">Slides</span> | <span style="color: pink;">HE</span> | <span style="color: grey;">scan HE</span> | <span style="color: pink;">CD3</span> | <span style="color: grey;">scan CD3</span> | <span style="color: pink;">CD8</span> | <span style="color: grey;">scan CD8</span> | <span style="color: pink;">FoxP3</span> | <span style="color: grey;">scan FoxP3</span> | <span style="color: pink;">PD1</span> | <span style="color: grey;">scan PD1</span> | <span style="color: pink;">PD-L1</span> | <span style="color: grey;">scan PD-L1</span> | <span style="color: pink;">CAIX</span> | <span style="color: grey;">scan CAIX</span> | <span style="color: pink;">CD68</span> | <span style="color: grey;">scan CD68</span> | <span style="color: pink;">CD45R</span> | <span style="color: grey;">scan CD45RO</span>
 # Expected Original_table structure:
 <span style="color: royalblue;">Patient ID</span> | <span style="color: royalblue;">Slides ID</span> | <span style="color: royalblue;">Slides</span> | <span style="color: pink;">HE</span> | <span style="color: grey;">scan HE</span> | <span style="color: pink;">CD3</span> | <span style="color: grey;">scan CD3</span> | <span style="color: pink;">CD8</span> | <span style="color: grey;">scan CD8</span> | <span style="color: pink;">FoxP3</span> | <span style="color: grey;">scan FoxP3</span> | <span style="color: pink;">PD1</span> | <span style="color: grey;">scan PD1</span> | <span style="color: pink;">PD-L1</span> | <span style="color: grey;">scan PD-L1</span> | <span style="color: pink;">CAIX</span> | <span style="color: grey;">scan CAIX</span> | <span style="color: pink;">CD68</span> | <span style="color: grey;">scan CD68</span> | <span style="color: pink;">CD45R</span> | <span style="color: grey;">scan CD45RO</span>
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---

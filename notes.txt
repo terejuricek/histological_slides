@@ -1,0 +1,19 @@
+Original table
+- name: 'slidy histo.xlsx'
+- header: 'Patient ID'	'Slides ID'	'Slides'	'HE'	'scan HE'	'CD3'	''	'CD8'	''	'FoxP3'	''	'PD1'	''	'PD-L1'	''	'CAIX'	''	'CD68'	''	'CD45RO'	''
+
+!!!! inconsistency with the naming in slidy histo.xlsx and ihc.txt of these stains:
+slidy histo.xlsx    ihc.txt
+FoxP3               FOXP3
+PD-L1               PDL1
+
+conpensation in script:
+def compareCSVstains
+...
+    if stain == "FoxP3":
+        stain = "FOXP3"
+    elif stain == "PD-L1":
+        stain = "PDL1"
+...
+
+
