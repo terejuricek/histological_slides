@@ -287,7 +287,6 @@ def excel2csv(input_excel, output_csv):
     print(f"Excel file {input_excel} converted to CSV file {output_csv}")
 
 def compareTables(input_csv1, input_csv2, output_txt=None):
-def compareTables(input_csv1, input_csv2, output_txt=None):
     """compares two CSV files and prints / stores (in a .txt file) the differences."""
     df1 = pd.read_csv(input_csv1)
     df2 = pd.read_csv(input_csv2)
@@ -324,7 +323,6 @@ def compareTables(input_csv1, input_csv2, output_txt=None):
         print(result)
 
 
-def compareStains(original_csv, stored_csv, output_txt=None, missing=False, verbose=False):
 def compareStains(original_csv, stored_csv, output_txt=None, missing=False, verbose=False):
     """Finds missing staining scans and saves them to a text file."""
     
