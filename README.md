@@ -13,9 +13,9 @@ This Python script handles tables with information about histological slides and
 - **Order CSV**: The order() function sorts an existing CSV file by a specified column and saves the result.
 - **Convert Files**:
   - **files2csv()** creates or updates a CSV file by adding data from a text file that contains filenames of histological scan slides.
-	- **csv2excel()** converts a CSV file to an Excel file.
+  - **csv2excel()** converts a CSV file to an Excel file.
   - **excel2csv()** converts an Excel file back to a CSV file.
-- **CSV Comparison**: The compareCSV() function compares two CSV files and outputs the differences based on common columns (patient_ID, slide_ID, slide).
+- **CSV Comparison**: The compareTables() function compares two CSV files and outputs the differences based on common columns (patient_ID, slide_ID, slide).
 
 ## Instalation
 Ensure you have the required Python version (>= 3.6) and install the necessary libraries:
@@ -52,22 +52,20 @@ The script provides several commands to process histological slide data.
     ```
     python histological_slide_processor.py csv2excel <input_csv> <output_excel>
     ```
-- ~~compareCSV: Compare two CSV files and output the differences.~~ -> to be changed to **compareCSVpatient**
+- ~~compareTables: Compare two CSV files and output the differences.~~ -> to be changed to **compareTablespatient**
   ```
-  python histological_slide_processor.py compareCSVpatient <input_csv1> <input_csv2> [-t <output_txt>]
+  python histological_slide_processor.py compareTablespatient <input_csv1> <input_csv2> [-t <output_txt>]
   ```
-- compareCSVstains: Compare two CSV files and output the differences.
+- compareStains: Compare two CSV files and output the differences in a txt file.
   ```
-  python histological_slide_processor.py compareCSVstains <input_csv1> <input_csv2> [-t <output_txt>]
+  python histological_slide_processor.py compareStains <input_csv1> <input_csv2> <output_txt>
   ```  
 
-# Original table structure:
-Patient ID | Slides ID | Slides | HE | scan HE | CD3 | scan CD3 | CD8 | scan CD8 | FoxP3 | scan FoxP3 | PD1 | scan PD1 | PD-L1 | scan PD-L1 | CAIX | scan CAIX | CD68 | scan CD68 | CD45RO | scan CD45RO
+# Expected Original_table structure:
+<span style="color: royalblue;">Patient ID</span> | <span style="color: royalblue;">Slides ID</span> | <span style="color: royalblue;">Slides</span> | <span style="color: pink;">HE</span> | <span style="color: grey;">scan HE</span> | <span style="color: pink;">CD3</span> | <span style="color: grey;">scan CD3</span> | <span style="color: pink;">CD8</span> | <span style="color: grey;">scan CD8</span> | <span style="color: pink;">FoxP3</span> | <span style="color: grey;">scan FoxP3</span> | <span style="color: pink;">PD1</span> | <span style="color: grey;">scan PD1</span> | <span style="color: pink;">PD-L1</span> | <span style="color: grey;">scan PD-L1</span> | <span style="color: pink;">CAIX</span> | <span style="color: grey;">scan CAIX</span> | <span style="color: pink;">CD68</span> | <span style="color: grey;">scan CD68</span> | <span style="color: pink;">CD45R</span> | <span style="color: grey;">scan CD45RO</span>
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
 1 | SB-01 | 1 | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 1 | yes | 1 | yes | 1 | yes | m | yes | 1 | yes
 1 | SB-01 | 3 | 1 | yes | 1 | yes | 1 | yes | 2 | yes | 1 | yes | 2 | yes | 0 | no | 1 | yes | 1 | yes
-<<<<<<< Updated upstream
-=======
 ...
 
 - position of columns isnt important
@@ -105,7 +103,7 @@ takes in a any .txt file containing scan file names in the following format: </b
 <span style="color: steelblue;"> *SB001-NRM-00-CD3.mrxs*  </br>
 ID-section-slide-stain.mrxs </span> </br>
 Which will be translated to the following: </br>
-patient_ID	| slide_ID	| section	| slide | >stain<
+patient_ID  | slide_ID  | section | slide | >stain<
 --- | --- | --- | --- |--- 
 1 | SB-01 | NRM | 0 | True </br>
 
@@ -211,4 +209,3 @@ mask = (
 
 
 <span style="color: lightcoral;"></span>
->>>>>>> Stashed changes

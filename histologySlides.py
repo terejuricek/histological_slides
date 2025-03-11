@@ -2,9 +2,6 @@ import pandas as pd
 import os
 import argparse
 
-<<<<<<< Updated upstream
-=======
-
 def order(output, column1, column2=None):
     """Sorts the CSV file by the specified column and saves it."""
     if os.path.exists(output):
@@ -25,7 +22,7 @@ def order(output, column1, column2=None):
             print(f"Column '{column1}' not found in the CSV file.")
     else:
         print("CSV file does not exist.")
-
+        
 def known_stain(stain):
     known_stains = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
     for name in known_stains:
@@ -52,7 +49,6 @@ def stain_check(stain):
 
     return stain_list
 
->>>>>>> Stashed changes
 def parse_filename(filename):
     """extracts patient_ID, slide_ID, section, slide, and stain method from the filename"""
     parts = filename.replace('.mrxs', '').split('-')
@@ -66,18 +62,19 @@ def parse_filename(filename):
         slide_ID = f"{parts[0][0:2]}-{parts[0][2:]}"
     return patient_ID, slide_ID, section, slide, stain
 
-def order(output, column):
-    """Sorts the CSV file by the specified column and saves it."""
-    if os.path.exists(output):
-        df = pd.read_csv(output)
-        if column in df.columns:
-            df = df.sort_values(by=column)
-            df.to_csv(output, index=False)
-            print(f"CSV file sorted by {column} and saved.")
-        else:
-            print(f"Column '{column}' not found in the CSV file.")
+def add_row(df, patient_ID, slide_ID, section, slide, stain):
+    mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+    if not mask.any():
+        new_entry = pd.DataFrame({
+            "patient_ID": [patient_ID],
+            "slide_ID": [slide_ID],
+            "section": [section],
+            "slide": [slide],
+            stain: [True]
+        })
+        df = pd.concat([df, new_entry], ignore_index=True)
     else:
-        print("CSV file does not exist.")
+        df.loc[mask, stain] = True
 
 def files2csv(input_txt, output_csv):
     """creates / updates a CSV file by adding data from the txt file."""
@@ -91,22 +88,67 @@ def files2csv(input_txt, output_csv):
             line = line.strip()
             if line:
                 patient_ID, slide_ID, section, slide, stain = parse_filename(line)
-
-            if stain not in df.columns:
-                df[stain] = pd.NA
             
-            mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
-            if not mask.any():
-                new_entry = pd.DataFrame({
-                    "patient_ID": [patient_ID],
-                    "slide_ID": [slide_ID],
-                    "section": [section],
-                    "slide": [slide],
-                    stain: [True]
-                })
-                df = pd.concat([df, new_entry], ignore_index=True)
+            if stain_check(stain) == pd.NA:
+                print(f"Unrecognized staining method: {stain}")
+            elif len(stain_check(stain)) == 1:
+                if stain not in df.columns:
+                    df[stain] = pd.NA
+                    print(f"Unrecognized stainingmethod: {stain}")
+                else:
+                    mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+                    if not mask.any():
+                        new_entry = pd.DataFrame({
+                            "patient_ID": [patient_ID],
+                            "slide_ID": [slide_ID],
+                            "section": [section],
+                            "slide": [slide],
+                            stain: [True]
+                        })
+                        df = pd.concat([df, new_entry], ignore_index=True)
+                    else:
+                        df.loc[mask, stain] = True        
+                    # add_row(df, patient_ID, slide_ID, section, slide, stain)
             else:
-                df.loc[mask, stain] = True
+                stain1, stain2 = stain_check(stain)
+                if stain1 not in df.columns:
+                    df[stain2] = pd.NA
+                    print(f"Unrecognized staining method: {stain1}")
+                else:
+                    mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+                    if not mask.any():
+                        new_entry = pd.DataFrame({
+                            "patient_ID": [patient_ID],
+                            "slide_ID": [slide_ID],
+                            "section": [section],
+                            "slide": [slide],
+                            stain1: [True]
+                        })
+                        df = pd.concat([df, new_entry], ignore_index=True)
+                    else:
+                        df.loc[mask, stain1] = True  
+                    # add_row(df, patient_ID, slide_ID, section, slide, stain1)
+                
+                if stain2 not in df.columns:
+                    df[stain2] = pd.NA
+                    print(f"Unrecognized staining method: {stain2}")
+                else:
+                    mask = (df['patient_ID'] == patient_ID) & (df['slide_ID'] == slide_ID) & (df['section'] == section) & (df['slide'] == slide)
+                    if not mask.any():
+                        new_entry = pd.DataFrame({
+                            "patient_ID": [patient_ID],
+                            "slide_ID": [slide_ID],
+                            "section": [section],
+                            "slide": [slide],
+                            stain2: [True]
+                        })
+                        df = pd.concat([df, new_entry], ignore_index=True)
+                    else:
+                        df.loc[mask, stain2] = True  
+                    # add_row(df, patient_ID, slide_ID, section, slide, stain2)
+            
+            
+
     
     df.to_csv(output_csv, index=False)
     print(f"updated CSV saved to {output_csv}")
@@ -123,7 +165,7 @@ def excel2csv(input_excel, output_csv):
     df.to_csv(output_csv, index=False)
     print(f"Excel file {input_excel} converted to CSV file {output_csv}")
 
-def compareCSV(input_csv1, input_csv2, output_txt=None):
+def compareTables(input_csv1, input_csv2, output_txt=None):
     """compares two CSV files and prints / stores (in a .txt file) the differences."""
     df1 = pd.read_csv(input_csv1)
     df2 = pd.read_csv(input_csv2)
@@ -160,13 +202,28 @@ def compareCSV(input_csv1, input_csv2, output_txt=None):
         print(result)
 
 
-def compareCSVstains(original_csv, stored_csv, output_txt):
+def compareStains(original_csv, stored_csv, output_txt=None, missing=False, verbose=False):
     """Finds missing staining scans and saves them to a text file."""
     
-    df_original = pd.read_csv("original_table.csv", usecols=['patient_ID', 'slide_ID', 'slide', 'HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO'])
-    df_stored = pd.read_csv(stored_csv)
+    # CHANGE!!!!! = FoxP3 = FOXP3 PD-L1 = PDL1 in original_table.csv !!!!!!!!!!!!!!!!!!!
     
-    stain_columns = ['HE', 'CD3', 'CD8', 'FoxP3', 'PD1', 'PD-L1', 'CAIX', 'CD68', 'CD45RO']
+    # if i input the original table as an excel file
+    
+    if original_csv.endswith('.xlsx'):
+        df_original = pd.read_excel(original_csv)
+    elif original_csv.endswith('.csv'):
+        df_original = pd.read_csv(original_csv)
+        
+    df_stored = pd.read_csv(stored_csv)
+    df_original.columns = df_original.columns.str.strip().str.upper()
+    df_stored.columns = df_stored.columns.str.strip().str.upper()
+    
+    df_original.rename(columns={"PD-L1": "PDL1"}, inplace=True)
+    df_original.rename(columns={"PATIENT ID": "PATIENT_ID"}, inplace=True)
+    df_original.rename(columns={"SLIDES ID": "SLIDE_ID"}, inplace=True)
+    df_original.rename(columns={"SLIDES": "SLIDE"}, inplace=True)
+    
+    stain_columns = ['HE', 'CD3', 'CD8', 'FOXP3', 'PD1', 'PDL1', 'CAIX', 'CD68', 'CD45RO']
     print(f"Stain columns: {stain_columns}")
     
     for stain in stain_columns:
@@ -184,30 +241,48 @@ def compareCSVstains(original_csv, stored_csv, output_txt):
     
     # iterate through original_table
     for _, row in df_original.iterrows():
-        patient_id, slide_id, slide = row['patient_ID'], row['slide_ID'], row['slide']
+        # patient_id, slide_id, slide = row['patient_ID'], row['slide_ID'].strip(), row['slide']
+        patient_id, slide_id, slide = row['PATIENT_ID'], row['SLIDE_ID'].strip(), row['SLIDE']
         
         for stain in stain_columns:
-            print(f"Checking {patient_id}, {slide_id}, {slide}, {stain}")
-            print(f"{row[stain]} is {pd.notna(row[stain])} and {is_number(row[stain])}")
+            if verbose:
+                print(f"Checking {patient_id}, {slide_id}, {slide}, {stain} -> {row[stain]} is {'not NA' if pd.notna(row[stain]) else 'NA'} and is {'a number' if is_number(row[stain]) else 'not a number'}")
             if pd.notna(row[stain]) and is_number(row[stain]):
                 if int(row[stain]) > 0:
-
                     mask = (
-                        (df_stored['patient_ID'] == patient_id) &
-                        (df_stored['slide_ID'] == slide_id) &
-                        (df_stored['slide'] == slide) &
+                        (df_stored['PATIENT_ID'] == patient_id) &
+                        (df_stored['SLIDE_ID'] == slide_id) &
+                        (df_stored['SLIDE'] == slide) &
                         (df_stored[stain] == True)  
                     )
                     
                     if not mask.any():  
                         missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}\n")
+            if missing and pd.notna(row[stain]) and row[stain] == "m":
+                mask = (
+                    (df_stored['PATIENT_ID'] == patient_id) &
+                    (df_stored['SLIDE_ID'] == slide_id) &
+                    (df_stored['SLIDE'] == slide) &
+                    (df_stored[stain] == True)  
+                )
+                if not mask.any():  
+                    missing_stains.append(f"{patient_id},{slide_id},{slide},{stain}-missing slide\n")
     
-    with open(output_txt, 'w') as file:
-        file.write("Patient_ID,Slide_ID,Slide,Missing_Stain\n")
-        file.writelines(missing_stains)
+    # with open(output_txt, 'w') as file:
+    #     file.write("Patient_ID,Slide_ID,Slide,Missing_Stain\n")
+    #     file.writelines(missing_stains)
     
-    print(f"Missing stains saved to {output_txt}")
+    # print(f"Missing stains saved to {output_txt}")
     
+    if output_txt:
+        with open(output_txt, 'w') as file:
+            file.writelines(missing_stains)
+            print(f"Differences saved to {output_txt}")
+    else:
+        for line in missing_stains:
+            line = line.strip()
+            print(line)
+
 
     
 
@@ -218,7 +293,8 @@ if __name__ == "__main__":
 
     parser_order = subparsers.add_parser('order', help='Sort the CSV file by the specified column')
     parser_order.add_argument('output', help='Output CSV file')
-    parser_order.add_argument('column', help='Column to sort by')
+    parser_order.add_argument('column1', help='Column to sort by')
+    parser_order.add_argument('column2', nargs='?', help='Second column to sort by')
 
     parser_files2csv = subparsers.add_parser('files2csv', help='Create/update a CSV file by adding data from the txt file')
     parser_files2csv.add_argument('input_txt', help='Input TXT file')
@@ -232,30 +308,32 @@ if __name__ == "__main__":
     parser_excel2csv.add_argument('input_excel', help='Input Excel file')
     parser_excel2csv.add_argument('output_csv', help='Output CSV file')
 
-    parser_compareCSV = subparsers.add_parser('compareCSV', help='Compare two CSV files and print/store the differences')
-    parser_compareCSV.add_argument('input_csv1', help='First input CSV file')
-    parser_compareCSV.add_argument('input_csv2', help='Second input CSV file')
-    parser_compareCSV.add_argument('-t', '--txt', help='Output TXT file to store differences')
+    parser_compareTables = subparsers.add_parser('compareTables', help='Compare two CSV files and print/store the differences')
+    parser_compareTables.add_argument('input_csv1', help='First input CSV file')
+    parser_compareTables.add_argument('input_csv2', help='Second input CSV file')
+    parser_compareTables.add_argument('-t', '--txt', help='Output TXT file to store differences')
 
-    parser_compareCSVstains = subparsers.add_parser('compareCSVstains', help="Compare two CSV files based on stains and store the differences")
-    parser_compareCSVstains.add_argument('original_csv', help="Path to the original CSV file")
-    parser_compareCSVstains.add_argument('stored_csv', help="Path to the stored scans CSV file")
-    parser_compareCSVstains.add_argument('output_txt', help="Output file for missing stains")
+    parser_compareStains = subparsers.add_parser('compareStains', help="Compare two CSV files based on stains and store the differences")
+    parser_compareStains.add_argument('original_csv', help="Path to the original CSV file")
+    parser_compareStains.add_argument('stored_csv', help="Path to the stored scans CSV file")
+    parser_compareStains.add_argument('output_txt', nargs='?', help="Output file for missing stains")
+    parser_compareStains.add_argument('-m', '--missing', action='store_true', help="Check for missing slides")
+    parser_compareStains.add_argument('-v', '--verbose', action='store_true', help="Print verbose output")
 
 
     args = parser.parse_args()
 
     if args.command == 'order':
-        order(args.output, args.column)
+        order(args.output, args.column1, args.column2)
     elif args.command == 'files2csv':
         files2csv(args.input_txt, args.output_csv)
     elif args.command == 'csv2excel':
         csv2excel(args.input_csv, args.output_excel)
     elif args.command == 'excel2csv':
         excel2csv(args.input_excel, args.output_csv)
-    elif args.command == 'compareCSV':
-        compareCSV(args.input_csv1, args.input_csv2, args.txt)
-    elif args.command == 'compareCSVstains':
-        compareCSVstains(args.original_csv, args.stored_csv, args.output_txt)
+    elif args.command == 'compareTables':
+        compareTables(args.input_csv1, args.input_csv2, args.txt)
+    elif args.command == 'compareStains':
+        compareStains(args.original_csv, args.stored_csv, args.output_txt, args.missing, args.verbose)
     else:
         print("Invalid command or arguments.")
