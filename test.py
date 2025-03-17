@@ -51,4 +51,67 @@ def compareTables(input_csv1, input_csv2, output_csv1=None, output_csv2=None):
         print(f"\nRows in {input_csv2} missing in {input_csv1}:\n")
         print(missing_from_df1.to_string(index=False))
         
-compareTables("/Users/terezajurickova/Desktop/bioimaging/original_table.csv", "/Users/terezajurickova/Desktop/bioimaging/scans.csv", "/Users/terezajurickova/Desktop/bioimaging/missing_from_table2.csv", "/Users/terezajurickova/Desktop/bioimaging/missing_from_table1.csv")
+# compareTables("/Users/terezajurickova/Desktop/bioimaging/original_table.csv", "/Users/terezajurickova/Desktop/bioimaging/scans.csv", "/Users/terezajurickova/Desktop/bioimaging/missing_from_table2.csv", "/Users/terezajurickova/Desktop/bioimaging/missing_from_table1.csv")
+
+
+# save as a new table
+def addMissingLog(table, missing_list, output_csv="/Users/terezajurickova/Desktop/bioimaging/added_Missing_logs.csv"):
+    """Adds a log of missing rows to a table.
+    
+    Args:
+        table (str): Path to the table to update.
+        missing_list (str): Path to the list of missing rows.
+    """
+    # Load data CVS sepparated with ";"
+    df = pd.read_csv(table, sep=";")
+        
+    # Missing logs are in a txt file
+    with open(missing_list) as f:
+        missing_rows = f.readlines()
+        # First row is the headder: eg. Patient_ID,Slide_ID,Slide,Missing_Stain
+        # if "section" is not present in the header it is assumed to be "T01"
+        header = missing_rows[0].split(",")
+        if "section" not in missing_rows[0] :
+            # skip the header
+            missing_rows = missing_rows[1:]
+            for row in missing_rows:
+                row = row.split(",")
+                patient_ID = row[0]
+                slide_ID = row[1]
+                slide = row[2]
+                stain = row[3].strip()
+                # the patient might be present in the table but the slide stain value is missing (we just want to to add the value "TRUE" to tha "stain" (eg. HE ...) column and patient row)
+                
+                mask = (df['patient_ID'].astype(str) == str(patient_ID)
+                    ) & (
+                        df['slide_ID'].astype(str) == str(slide_ID)
+                    ) & (
+                        df['section'].astype(str) == "T01"
+                    ) & (
+                        df['slide'].astype(str) == str(slide)
+                    )
+                
+                                
+                if not mask.any():
+                    new_entry = pd.DataFrame({
+                        "patient_ID": [patient_ID],
+                        "slide_ID": [slide_ID],
+                        "section": "T01",
+                        "slide": [slide],
+                        stain: ["ADDED AS A NEW ENTERY!!!!!!!"]
+                    })
+                    df = pd.concat([df, new_entry], ignore_index=True)
+                
+                # elif the patient exists and in its column "stain" the value is present ("True"): return "ou nou there is a value in this row" to the terminal
+                elif df.loc[mask, stain].any():
+                    print(f"Value already present in the table: {patient_ID}, {slide_ID}, {slide}, {stain}")
+                
+                else:
+                    df.loc[mask, stain] = "MISSING SCAN!!!!!!!!!!"
+        # save the updated table as a new table named output_csv
+        df.to_csv(output_csv, index=False)
+        print(f"Updated table saved to: {output_csv}")
+        
+        
+# run
+addMissingLog("/Users/terezajurickova/Desktop/bioimaging/manual_logs.csv", "/Users/terezajurickova/Desktop/bioimaging/missing_stains.txt")
