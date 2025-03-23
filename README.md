@@ -5,7 +5,7 @@ This Python script handles tables with information about histological slides and
 * Convert between CSV and Excel file formats.
 * Compare two CSV files to find and output the differences.
 
-## Current files available
+## Currently available files
 - <span style="color: royalblue;">**histologySlides.py**</span> -> contains all of the later discussed functions regarding table management
 - <span style="color: royalblue;">**test.py**</span>  -> contains currently undocumented functions that are in the progress of implementation
 - <span style="color: royalblue;">**changes.md**</span> -> is another documentations txt file focusing primarly on the naming inconsistencies and keeping track of them coherently
